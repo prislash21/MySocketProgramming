@@ -10,9 +10,9 @@ def server(port):
     while True:
         data, clientAddress = s.recvfrom(MAX_SIZE_BYTES)
         message = data.decode('ascii')
-        upperCaseMessage = message.upper()
         print('The client at {} says {!r}'.format(clientAddress, message))
-        data = upperCaseMessage.encode('ascii')
+        msg_to_send = input('Input message to send to client:' )
+        data = msg_to_send.encode('ascii')
         s.sendto(data, clientAddress)
 
 
@@ -20,21 +20,15 @@ def server(port):
 
 def client(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    hosts = []
+    host = '127.0.0.1'
     while True:
-        host = input('Input host address:' )
-        hosts.append((host,port))
+        s.connect((host, port))
         message = input('Input message to send to server:' )
         data = message.encode('ascii')
-        s.sendto(data, (host, port))
-        print('The OS assigned the address {} to me'.format(s.getsockname()))
-        data, address = s.recvfrom(MAX_SIZE_BYTES)
+        s.send(data)
+        data = s.recv(MAX_SIZE_BYTES)
         text = data.decode('ascii')
-        if(address in hosts):
-            print('The server {} replied with {!r}'.format(address, text))
-            hosts.remove(address)
-        else:
-            print('message {!r} from unexpected host {}!'.format(text, address))
+        print('The server replied with {!r}'.format(text))
 
 
 if __name__ == '__main__':
